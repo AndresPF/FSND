@@ -85,6 +85,9 @@ class VenueForm(Form):
     phone = StringField(
         'phone'
     )
+    website = StringField(
+        'website'
+    )
     image_link = StringField(
         'image_link'
     )
@@ -186,6 +189,9 @@ class ArtistForm(Form):
     )
     image_link = StringField(
         'image_link'
+    )
+    website = StringField(
+        'website'
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
