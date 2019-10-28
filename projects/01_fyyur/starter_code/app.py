@@ -13,6 +13,7 @@ import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
 from forms import *
+from datetime import datetime
 #----------------------------------------------------------------------------#
 # App Config.
 #----------------------------------------------------------------------------#
@@ -59,50 +60,35 @@ def index():
 
 @app.route('/venues')
 def venues():
-  # TODO: replace with real venues data.
-  #       num_shows should be aggregated based on number of upcoming shows per venue.
-  data=[{
-    "city": "San Francisco",
-    "state": "CA",
-    "venues": [{
-      "id": 1,
-      "name": "The Musical Hop",
-      "num_upcoming_shows": 0,
-    }, {
-      "id": 3,
-      "name": "Park Square Live Music & Coffee",
-      "num_upcoming_shows": 1,
-    }]
-  }, {
-    "city": "New York",
-    "state": "NY",
-    "venues": [{
-      "id": 2,
-      "name": "The Dueling Pianos Bar",
-      "num_upcoming_shows": 0,
-    }]
-  }]
-
-  places = db.session.query(Venue).order_by(Venue.city, Venue.state).all()
-  upcoming_shows = db.session.query(Venue).all()
-  print(upcoming_shows)
+  results = db.session.query(Venue).order_by(Venue.city, Venue.state).all()
+  count_shows = {}
+  for item in results:
+    for show in item.shows:
+      if show.start_time.replace(tzinfo=None) > datetime.now():
+        if show.venue_id in count_shows:
+          count_shows[show.venue_id] += 1
+        else:
+          count_shows[show.venue_id] = 1
 
   currentCity = ''
   areas = []
   count = -1
-  for x in places:
-    if x.city != currentCity:
-      currentCity = x.city
+  for current in results:
+    if current.city != currentCity:
+      currentCity = current.city
       count += 1
       areas.append({
-        "city": x.city,
-        "state": x.state,
+        "city": current.city,
+        "state": current.state,
         "venues": []
       })
+    shows = 0
+    if current.id in count_shows:
+      shows = count_shows[current.id]
     areas[count]["venues"].append({
-        "id": x.id,
-        "name": x.name,
-        "num_upcoming_shows": 0
+        "id": current.id,
+        "name": current.name,
+        "num_upcoming_shows": shows
       })
       
   return render_template('pages/venues.html', areas=areas);
@@ -257,18 +243,8 @@ def delete_venue(venue_id):
 #  ----------------------------------------------------------------
 @app.route('/artists')
 def artists():
-  # TODO: replace with real data returned from querying the database
-  data=[{
-    "id": 4,
-    "name": "Guns N Petals",
-  }, {
-    "id": 5,
-    "name": "Matt Quevedo",
-  }, {
-    "id": 6,
-    "name": "The Wild Sax Band",
-  }]
-  return render_template('pages/artists.html', artists=data)
+  artists = db.session.query(Artist.id, Artist.name).all()
+  return render_template('pages/artists.html', artists=artists)
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
@@ -508,14 +484,25 @@ def create_shows():
 
 @app.route('/shows/create', methods=['POST'])
 def create_show_submission():
-  # called to create new shows in the db, upon submitting new show listing form
-  # TODO: insert form data as a new Show record in the db, instead
-
-  # on successful db insert, flash success
-  flash('Show was successfully listed!')
-  # TODO: on unsuccessful db insert, flash an error instead.
-  # e.g., flash('An error occurred. Show could not be listed.')
-  # see: http://flask.pocoo.org/docs/1.0/patterns/flashing/
+  error = False
+  form = ShowForm(request.form)
+  try:
+    venue_id = form.venue_id.data
+    artist_id = form.artist_id.data
+    start_time = form.start_time.data
+    show = Show(venue_id=venue_id,artist_id=artist_id,start_time=start_time)
+    db.session.add(show)
+    db.session.commit()
+  except exc.IntegrityError as e:
+    error = True
+    db.session.rollback()
+    print(e.orig.args)
+  finally:
+    db.session.close()
+  if error:
+    flash('An error occurred. Show could not be listed.')
+  else:
+    flash('Show was successfully listed!')
   return render_template('pages/home.html')
 
 @app.errorhandler(404)

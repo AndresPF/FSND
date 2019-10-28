@@ -54,6 +54,6 @@ class Show(db.Model):
 
     venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True)
     artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True)
-    start_time = db.Column(db.TIMESTAMP(timezone=True))
+    start_time = db.Column(db.DateTime(timezone=True))
     venue = db.relationship("Venue", back_populates="shows")
     artist = db.relationship("Artist", back_populates="shows")
