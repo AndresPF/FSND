@@ -52,8 +52,9 @@ class Artist(db.Model):
 class Show(db.Model):
     __tablename__ = 'Show'
 
-    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), primary_key=True, unique=False)
-    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), primary_key=True, unique=False)
-    start_time = db.Column(db.DateTime(timezone=True))
+    id = db.Column(db.Integer, primary_key=True)
+    venue_id = db.Column(db.Integer, db.ForeignKey('Venue.id'), nullable=False)
+    artist_id = db.Column(db.Integer, db.ForeignKey('Artist.id'), nullable=False)
+    start_time = db.Column(db.DateTime(timezone=True), nullable=False)
     venue = db.relationship("Venue", back_populates="shows")
     artist = db.relationship("Artist", back_populates="shows")
