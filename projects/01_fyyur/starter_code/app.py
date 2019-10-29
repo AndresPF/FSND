@@ -5,7 +5,7 @@
 import json
 import dateutil.parser
 import babel
-from flask import Flask, render_template, request, Response, flash, redirect, url_for
+from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
 from sqlalchemy import exc
@@ -24,8 +24,6 @@ app = Flask(__name__)
 moment = Moment(app)
 app.config.from_object('config')
 db = SQLAlchemy(app)
-
-# TODO: connect to a local postgresql database
 
 #----------------------------------------------------------------------------#
 # Models.
@@ -114,11 +112,10 @@ def search_venues():
 @app.route('/venues/<int:venue_id>')
 def show_venue(venue_id):
   result = Venue.query.get(venue_id)
-  shows = Show.query.filter_by(venue_id=venue_id).all()
   past_shows = []
   upcoming_shows = []
 
-  for show in shows:
+  for show in result.shows:
     artist = {
       "artist_id": show.artist.id,
       "artist_name": show.artist.name,
@@ -191,12 +188,22 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-  # TODO: Complete this endpoint for taking a venue_id, and using
-  # SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+  success = False
+  try:
+    db.session.query(Show).filter_by(venue_id=venue_id).delete()
+    db.session.query(Venue).filter_by(id=venue_id).delete()
+    db.session.commit()
+  except exc.IntegrityError as e:
+    db.session.rollback()
+    print(e.orig.args)
+    flash('An error occurred. Venue could not be deleted.')
+  else:
+    success = True
+    flash('Venue was deleted.')
+  finally:
+    db.session.close()
 
-  # BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-  # clicking that button delete it from the db then redirect the user to the homepage
-  return None
+  return jsonify({ 'success': success })
 
 #  Artists
 #  ----------------------------------------------------------------
@@ -232,11 +239,10 @@ def search_artists():
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
   result = Artist.query.get(artist_id)
-  shows = Show.query.filter_by(artist_id=artist_id).all()
   past_shows = []
   upcoming_shows = []
 
-  for show in shows:
+  for show in result.shows:
     venue = {
       "venue_id": show.venue.id,
       "venue_name": show.venue.name,

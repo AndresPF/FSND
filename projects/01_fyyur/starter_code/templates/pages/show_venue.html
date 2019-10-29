@@ -75,5 +75,26 @@
 	</div>
 </section>
 
+<input id="delete_venue" value="Delete" class="btn btn-danger btn-lg btn-block">
+<script type="text/javascript">
+	document.getElementById('delete_venue').onclick = function(e){
+		e.preventDefault();
+		fetch('/venues/{{venue.id}}', {
+			method: 'Delete'
+		})
+		.then(function(response){
+			return response.json();
+		})
+		.then(function(jsonResponse){
+			if(jsonResponse['success']){
+				window.location.href = "/";
+			}
+		})
+		.catch(function(){
+			console.log(failed)
+		})
+	}
+</script>
+
 {% endblock %}
 
