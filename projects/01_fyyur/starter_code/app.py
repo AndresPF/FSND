@@ -8,7 +8,7 @@ import babel
 from flask import Flask, render_template, request, Response, flash, redirect, url_for, jsonify
 from flask_moment import Moment
 from flask_sqlalchemy import SQLAlchemy
-from sqlalchemy import exc
+from sqlalchemy import exc, or_
 import logging
 from logging import Formatter, FileHandler
 from flask_wtf import Form
@@ -432,6 +432,29 @@ def shows():
       "start_time": str(item.start_time)
     })
   return render_template('pages/shows.html', shows=shows)
+
+@app.route('/shows/search', methods=['POST'])
+def search_shows():
+  search_value = request.form.get('search_term', '')
+  result = db.session.query(Show).join(Show.venue).join(Show.artist).filter(or_(Venue.name.ilike('%{0}%'.format(search_value)),Artist.name.ilike('%{0}%'.format(search_value))))
+  shows = result.all()
+  count = result.count()
+  response = {
+    "count": count,
+    "data": []
+  }
+
+  for current in shows:
+    response["data"].append({
+      "venue_id": current.venue_id,
+      "venue_name": current.venue.name,
+      "artist_id": current.artist_id,
+      "artist_name": current.artist.name,
+      "artist_image_link": current.artist.image_link,
+      "start_time": str(current.start_time)
+    })
+
+  return render_template('pages/search_shows.html', results=response, search_term=search_value)
 
 @app.route('/shows/create')
 def create_shows():
