@@ -9,39 +9,95 @@
         {{ form.name(class_ = 'form-control', autofocus = true) }}
       </div>
       <div class="form-group">
-          <label>City & State</label>
-          <div class="form-inline">
-            <div class="form-group">
-              {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
+        <label>City & State</label>
+        {% if "city" in form.errors %}
+        {% for error in form.errors["city"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
             </div>
-            <div class="form-group">
-              {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
+        {% endfor %}
+        {% endif %}
+        {% if "state" in form.errors %}
+        {% for error in form.errors["state"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
             </div>
+        {% endfor %}
+        {% endif %}
+        <div class="form-inline">
+          <div class="form-group">
+            {{ form.city(class_ = 'form-control', placeholder='City', autofocus = true) }}
           </div>
+          <div class="form-group">
+            {{ form.state(class_ = 'form-control', placeholder='State', autofocus = true) }}
+          </div>
+        </div>
       </div>
       <div class="form-group">
         <label for="address">Address</label>
+        {% if "address" in form.errors %}
+        {% for error in form.errors["address"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         {{ form.address(class_ = 'form-control', autofocus = true) }}
       </div>
       <div class="form-group">
-          <label for="phone">Phone</label>
-          {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
-        </div>
+        <label for="phone">Phone</label>
+        {% if "phone" in form.errors %}
+        {% for error in form.errors["phone"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
+        {{ form.phone(class_ = 'form-control', placeholder='xxx-xxx-xxxx', autofocus = true) }}
+      </div>
       <div class="form-group">
         <label for="genres">Genres</label>
+        {% if "genres" in form.errors %}
+        {% for error in form.errors["genres"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         <small>Ctrl+Click to select multiple</small>
         {{ form.genres(class_ = 'form-control', placeholder='Genres, separated by commas', autofocus = true) }}
       </div>
       <div class="form-group">
         <label for="website">Website</label>
+        {% if "website" in form.errors %}
+        {% for error in form.errors["website"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         {{ form.website(class_ = 'form-control', placeholder='http://', autofocus = true) }}
       </div>
       <div class="form-group">
         <label for="image_link">Image Link</label>
+        {% if "image_link" in form.errors %}
+        {% for error in form.errors["image_link"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         {{ form.image_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
       </div>
       <div class="form-group">
         <label for="facebook_link">Facebook Link</label>
+        {% if "facebook_link" in form.errors %}
+        {% for error in form.errors["facebook_link"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         {{ form.facebook_link(class_ = 'form-control', placeholder='http://', autofocus = true) }}
       </div>
       <div class="form-group">
@@ -50,6 +106,13 @@
       </div>
       <div class="form-group">
         <label for="seeking_description">Description</label>
+        {% if "seeking_description" in form.errors %}
+        {% for error in form.errors["seeking_description"] %}
+            <div class="alert alert-warning">
+                <strong>Error!</strong> {{error}}
+            </div>
+        {% endfor %}
+        {% endif %}
         {{ form.seeking_description(class_ = 'form-control', autofocus = true) }}
       </div>
       <input type="submit" value="Create Venue" class="btn btn-primary btn-lg btn-block">

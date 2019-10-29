@@ -162,6 +162,12 @@ def create_venue_form():
 def create_venue_submission():
   error = False
   form = VenueForm(request.form)
+  #To correctly validate errors, had to check if there was more than one.
+  #This is due to wtforms csrf validation token being missing.
+  if not form.validate_on_submit():
+    if len(form.errors) > 1:
+      flash('Errors creating Venue')
+      return render_template('forms/new_venue.html', form=form)
   try:
     name = form.name.data
     city = form.city.data
