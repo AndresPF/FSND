@@ -25,8 +25,6 @@ class Venue(db.Model):
     genres = db.Column(db.ARRAY(db.String(120)))
     shows = db.relationship('Show', back_populates="venue")
 
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
 class Artist(db.Model):
     __tablename__ = 'Artist'
 
@@ -43,11 +41,6 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String(120), default="")
     genres = db.Column(db.ARRAY(db.String(120)))
     shows = db.relationship('Show', back_populates="artist")
-
-    # TODO: implement any missing fields, as a database migration using Flask-Migrate
-
-# TODO Implement Show and Artist models, and complete all model relationships and properties,
-# as a database migration.
 
 class Show(db.Model):
     __tablename__ = 'Show'
