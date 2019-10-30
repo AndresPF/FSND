@@ -4,7 +4,7 @@
 <div class="row">
 	<div class="col-sm-6">
 		<h1 class="monospace">
-			{{ venue.name }}
+			{{ venue.name }} <a href="/venues/{{venue.id}}/edit" title="Edit Venue"><i class="fa fa-edit pull-right"></i></a>
 		</h1>
 		<p class="subtitle">
 			ID: {{ venue.id }}
@@ -74,6 +74,27 @@
 		{% endfor %}
 	</div>
 </section>
+
+<input id="delete_venue" value="Delete" class="btn btn-danger btn-lg btn-block">
+<script type="text/javascript">
+	document.getElementById('delete_venue').onclick = function(e){
+		e.preventDefault();
+		fetch('/venues/{{venue.id}}', {
+			method: 'Delete'
+		})
+		.then(function(response){
+			return response.json();
+		})
+		.then(function(jsonResponse){
+			if(jsonResponse['success']){
+				window.location.href = "/";
+			}
+		})
+		.catch(function(){
+			console.log(failed)
+		})
+	}
+</script>
 
 {% endblock %}
 
