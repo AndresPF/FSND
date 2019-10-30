@@ -308,6 +308,13 @@ def edit_artist(artist_id):
 @app.route('/artists/<int:artist_id>/edit', methods=['POST'])
 def edit_artist_submission(artist_id):
   form = ArtistForm(request.form)
+  artist = Artist.query.get(artist_id)
+  #To correctly validate errors, had to check if there was more than one.
+  #This is due to wtforms csrf validation token being missing.
+  if not form.validate_on_submit():
+    if len(form.errors) > 1:
+      flash('Errors creating Artist!')
+      return render_template('forms/edit_artist.html', form=form, artist=artist)
   try:
     db.session.query(Artist).filter_by(id=artist_id).update({
       "name": form.name.data,
@@ -356,6 +363,13 @@ def edit_venue(venue_id):
 @app.route('/venues/<int:venue_id>/edit', methods=['POST'])
 def edit_venue_submission(venue_id):
   form = VenueForm(request.form)
+  venue = Venue.query.get(venue_id)
+  #To correctly validate errors, had to check if there was more than one.
+  #This is due to wtforms csrf validation token being missing.
+  if not form.validate_on_submit():
+    if len(form.errors) > 1:
+      flash('Errors creating Artist!')
+      return render_template('forms/edit_venue.html', form=form, venue=venue)
   try:
     db.session.query(Venue).filter_by(id=venue_id).update({
       "name": form.name.data,
@@ -394,6 +408,12 @@ def create_artist_form():
 def create_artist_submission():
   error = False
   form = ArtistForm(request.form)
+  #To correctly validate errors, had to check if there was more than one.
+  #This is due to wtforms csrf validation token being missing.
+  if not form.validate_on_submit():
+    if len(form.errors) > 1:
+      flash('Errors creating Artist!')
+      return render_template('forms/new_artist.html', form=form)
   try:
     name = form.name.data
     city = form.city.data
