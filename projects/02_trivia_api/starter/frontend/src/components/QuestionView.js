@@ -23,7 +23,7 @@ class QuestionView extends Component {
 
   getQuestions = () => {
     $.ajax({
-      url: `/questions?page=${this.state.page}`, //TODO: update request URL
+      url: `http://localhost:5000/api/questions?page=${this.state.page}`, //TODO: update request URL
       type: "GET",
       success: (result) => {
         this.setState({
@@ -35,6 +35,7 @@ class QuestionView extends Component {
       },
       error: (error) => {
         alert('Unable to load questions. Please try your request again')
+        console.log(error);
         return;
       }
     })

@@ -35,6 +35,10 @@ With Postgres running, restore a database using the trivia.psql file provided. F
 ```bash
 psql trivia < trivia.psql
 ```
+or *windows*:
+```bash
+psql -f trivia.psql trivia
+```
 
 ## Running the server
 
@@ -45,6 +49,12 @@ To run the server, execute:
 ```bash
 export FLASK_APP=flaskr
 export FLASK_ENV=development
+flask run
+```
+or *windows*:
+```bash
+$env:FLASK_ENV = "development"
+$env:FLASK_APP = "flaskr"
 flask run
 ```
 
