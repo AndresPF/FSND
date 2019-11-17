@@ -43,6 +43,14 @@ def create_app(test_config=None):
 	Create an endpoint to handle GET requests 
 	for all available categories.
 	'''
+	@app.route('/api/categories/')
+	def retrieve_categories():
+		categories = Category.query.order_by(Category.id).all()
+		formatted_categories = [category.format() for category in categories]
+
+		return jsonify({
+			'categories': formatted_categories
+		})
 
 	'''
 	@TODO: 
@@ -55,27 +63,25 @@ def create_app(test_config=None):
 	you should see questions and categories generated,
 	ten questions per page and pagination at the bottom of the screen for three pages.
 	Clicking on the page numbers should update the questions. 
-
-	{
-          questions: result.questions,
-          totalQuestions: result.total_questions,
-          categories: result.categories,
-          currentCategory: result.current_category }
 	'''
 	@app.route('/api/questions')
 	def retrieve_questions():
 		selection = Question.query.order_by(Question.id).all()
 		current_questions = paginate_questions(request, selection)
 		categories = Category.query.order_by(Category.id).all()
-		formatted_categories = [category.self_format() for category in categories]
+		formatted_categories = [category.format() for category in categories]
+
+		# https://stackoverflow.com/questions/7961363/removing-duplicates-in-lists
+		current = list(set([question['category'] for question in current_questions]))
 
 		if len(current_questions) == 0:
 			abort(404)
 
 		return jsonify({
 			'questions': current_questions,
-			'total_questions': len(Question.query.all()),
-			'categories': formatted_categories
+			'total_questions': len(selection),
+			'categories': formatted_categories,
+			'current_category': current
 		})
 
 	'''
@@ -116,7 +122,19 @@ def create_app(test_config=None):
 	categories in the left column will cause only questions of that 
 	category to be shown. 
 	'''
+	@app.route('/api/categories/<int:category_id>/questions')
+	def retrieve_questions_by_category(category_id):
+		selection = Question.query.order_by(Question.id).filter(Question.category == category_id).all()
+		current_questions = paginate_questions(request, selection)
 
+		if len(current_questions) == 0:
+			abort(404)
+
+		return jsonify({
+			'questions': current_questions,
+			'total_questions': len(selection),
+			'current_category': category_id
+		})
 
 	'''
 	@TODO: 
