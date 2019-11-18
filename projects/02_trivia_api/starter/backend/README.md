@@ -35,6 +35,11 @@ With Postgres running, restore a database using the trivia.psql file provided. F
 ```bash
 psql trivia < trivia.psql
 ```
+or **windows**:
+```bash
+psql -f trivia.psql trivia
+```
+**Note:** Make sure that you are using the correct owner for the database, else add `-U <username>`.
 
 ## Running the server
 
@@ -45,6 +50,12 @@ To run the server, execute:
 ```bash
 export FLASK_APP=flaskr
 export FLASK_ENV=development
+flask run
+```
+or **windows**:
+```bash
+$env:FLASK_ENV = "development"
+$env:FLASK_APP = "flaskr"
 flask run
 ```
 
@@ -66,33 +77,145 @@ One note before you delve into your tasks: for each endpoint you are expected to
 8. Create a POST endpoint to get questions to play the quiz. This endpoint should take category and previous question parameters and return a random questions within the given category, if provided, and that is not one of the previous questions. 
 9. Create error handlers for all expected errors including 400, 404, 422 and 500. 
 
-REVIEW_COMMENT
-```
-This README is missing documentation of your endpoints. Below is an example for your endpoint to get all categories. Please use it as a reference for creating your documentation and resubmit your code. 
-
-Endpoints
-GET '/categories'
-GET ...
-POST ...
-DELETE ...
-
-GET '/categories'
+## API Endpoints
+### GET `/api/categories`
 - Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
 - Request Arguments: None
-- Returns: An object with a single key, categories, that contains a object of id: category_string key:value pairs. 
-{'1' : "Science",
-'2' : "Art",
-'3' : "Geography",
-'4' : "History",
-'5' : "Entertainment",
-'6' : "Sports"}
-
+- Returns: categories array that contains object with structure `{ id: category_id, type: category_type }`. 
 ```
-
+{
+  "categories": [
+    {
+      "id": 1, 
+      "type": "Science"
+    }, 
+    {
+      "id": 2, 
+      "type": "Art"
+    }, 
+    ...
+  ]
+}
+```
+### GET `/api/questions`
+- Fetches questions in a paginated way split by 10 at a time, it also includes categories (same as `/api/categories`),  current categories of the retrieved questions and the total of questions in the database.
+- Request Arguments: **optional**: page=int, used for pagination to show the next batch of questions available.
+- Returns: question in an object with parameters: answer, category, difficulty, question.
+```
+{
+  "categories": [
+    {
+      "id": 1, 
+      "type": "Science"
+    }, 
+    ...
+  ], 
+  "current_category": [
+    3, 
+    4, 
+    5, 
+    6
+  ], 
+  "questions": [
+    {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }, 
+    ...
+  ], 
+  "success": true, 
+  "total_questions": 19
+}
+```
+### POST `/api/questions`
+- Post request used for two things: to generate new questions **or** search for questions based on a string parameter.
+- Request Arguments: `{ question:"", answer:"", difficulty:1, category: 1 }` **or** `{ searchTerm: "" }`
+- Returns: if creating a new question, returns a success value along with the id of the newly created question. For search results, it returns a success value along with list of questions retrieved and the amount of questions that match search result.
+#### New question
+```
+{
+  'success': true,
+  'created': question_id
+}
+```
+#### Search
+```
+{
+  'success': true,
+  'questions': [
+      {
+        "answer": "Apollo 13", 
+        "category": 5, 
+        "difficulty": 4, 
+        "id": 2, 
+        "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+      }, 
+      ...
+  ], 
+  'total_questions': 20
+}
+```
+### DELETE `/api/questions/<int:question_id>`
+- Endpoint to delete a question with given question id.
+- Request Arguments: None.
+- Returns: returns a success parameter along with the delete id as confirmation.
+```
+{
+  'success': true,
+  'deleted': question_id,
+}
+```
+### GET `/api/categories/<int:category_id>/questions`
+- Fetches a list of questions based on a specific category paginated 10 at a time.
+- Request Arguments: **optional**: page=int, used for pagination to show the next batch of questions available.
+- Returns: returns list of questions along with a success value, total of questions and the current category id.
+```
+{
+  'success': true,
+  'questions': [
+      {
+        "answer": "Apollo 13", 
+        "category": 5, 
+        "difficulty": 4, 
+        "id": 2, 
+        "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+      }, 
+      ...
+  ], 
+  'total_questions': 5
+  'current_category': category_id
+}
+```
+### POST `/api/quizzes`
+- Endpoint used to create a quiz, it returns a random question based on the to parameters it receives: quiz category (or 0 to match any category) you want questions from and an array of previous questions to filter out.
+- Request Arguments: `{ previous_questions: [], quiz_category: 1 }`
+- Returns: returns a random question filtered by the arguments received. If there is no more questions available (from a category or in general no more questions) it will return false.
+```
+{
+  'success': true,
+  'question': {
+      "answer": "Apollo 13", 
+      "category": 5, 
+      "difficulty": 4, 
+      "id": 2, 
+      "question": "What movie earned Tom Hanks his third straight Oscar nomination, in 1996?"
+    }
+}
+```
+#### Fail attempt
+```
+{
+  'success': false,
+  'question' false
+}
+```
 
 ## Testing
 To run the tests, run
-```
+```bash
 dropdb trivia_test
 createdb trivia_test
 psql trivia_test < trivia.psql
