@@ -96,23 +96,45 @@ class TriviaTestCase(unittest.TestCase):
         self.assertEqual(len(data['questions']), 0)
 
     def test_delete_question(self):
-        res = self.client().delete('/api/questions/1')
+        res = self.client().delete('/api/questions/2')
         data = json.loads(res.data)
 
-        question = Question.query.filter(Question.id == 1).one_or_none()
+        question = Question.query.filter(Question.id == 2).one_or_none()
 
         self.assertEqual(res.status_code, 200)
         self.assertEqual(data['success'], True)
-        self.assertEqual(data['deleted'], 1)
+        self.assertEqual(data['deleted'], 2)
         self.assertEqual(question, None)
 
-    def test_404_if_question_does_not_exist(self):
+    def test_422_if_question_does_not_exist(self):
         res = self.client().delete('/api/questions/1')
         data = json.loads(res.data)
 
         self.assertEqual(res.status_code, 422)
         self.assertEqual(data['success'], False)
         self.assertEqual(data['message'], 'unprocessable')
+
+    def test_play_quiz(self):
+        res = self.client().post('/api/quizzes', json={
+                "previous_questions":[],
+                "quiz_category": {"type": "click", "id": 0 }
+            })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], True)
+        self.assertTrue(data['question'])
+
+    def test_no_more_questions_from_category(self):
+        res = self.client().post('/api/quizzes', json={
+                "previous_questions":[20,21,22],
+                "quiz_category": {"type": "Science", "id": 1 }
+            })
+        data = json.loads(res.data)
+
+        self.assertEqual(res.status_code, 200)
+        self.assertEqual(data['success'], False)
+        self.assertEqual(data['question'], False)
 
 # Make the tests conveniently executable
 if __name__ == "__main__":
