@@ -39,7 +39,7 @@ or **windows**:
 ```bash
 psql -f trivia.psql trivia
 ```
-**Note:** Make sure that you are using the correct owner for the database, else use `-U <username>`.
+**Note:** Make sure that you are using the correct owner for the database, else add `-U <username>`.
 
 ## Running the server
 
@@ -100,10 +100,30 @@ GET '/categories'
 
 ```
 
+## API Endpoints
+### GET `/api/categories`
+- Fetches a dictionary of categories in which the keys are the ids and the value is the corresponding string of the category
+- Request Arguments: None
+- Returns: categories array that contains object with structure `{ id: category_id, type: category_type }`. 
+```
+{
+  "categories": [
+    {
+      "id": 1, 
+      "type": "Science"
+    }, 
+    {
+      "id": 2, 
+      "type": "Art"
+    }, 
+    ...
+  ]
+}
+```
 
 ## Testing
 To run the tests, run
-```
+```bash
 dropdb trivia_test
 createdb trivia_test
 psql trivia_test < trivia.psql
