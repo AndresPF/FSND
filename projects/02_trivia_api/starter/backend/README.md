@@ -35,10 +35,11 @@ With Postgres running, restore a database using the trivia.psql file provided. F
 ```bash
 psql trivia < trivia.psql
 ```
-or *windows*:
+or **windows**:
 ```bash
 psql -f trivia.psql trivia
 ```
+**Note:** Make sure that you are using the correct owner for the database, else use `-U <username>`.
 
 ## Running the server
 
@@ -51,7 +52,7 @@ export FLASK_APP=flaskr
 export FLASK_ENV=development
 flask run
 ```
-or *windows*:
+or **windows**:
 ```bash
 $env:FLASK_ENV = "development"
 $env:FLASK_APP = "flaskr"
