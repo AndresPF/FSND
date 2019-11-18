@@ -110,7 +110,7 @@ def create_app(test_config=None):
 		except:
 			abort(422)
 
-	@app.route('/api/categories/<int:category_id>/questions')
+	@app.route('/api/categories/<int:category_id>/questions', methods=['GET'])
 	def retrieve_questions_by_category(category_id):
 		selection = Question.query.order_by(Question.id).filter(Question.category == category_id).all()
 		current_questions = paginate_questions(request, selection)
