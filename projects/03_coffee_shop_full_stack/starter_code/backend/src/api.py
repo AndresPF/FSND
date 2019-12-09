@@ -30,10 +30,11 @@ CORS(app)
 @app.route('/drinks', methods=['GET'])
 def retrieve_drinks():
 	selection = Drink.query.order_by(Drink.id).all()
-	formatted_drinks = [drink.short() for drink in selection]
 
 	if len(selection) == 0:
 		abort(404)
+	
+	formatted_drinks = [drink.short() for drink in selection]
 
 	return jsonify({
 		'success': True,
@@ -80,14 +81,15 @@ def create_drinks(payload):
 
 	new_title = body.get('title', None)
 	new_recipe = body.get('recipe', None)
+	recipe_json	= json.dumps(new_recipe)
 
 	try:
-		drink = Drink(title=new_title, recipe=json.dums(new_recipe))
+		drink = Drink(title=new_title, recipe=recipe_json)
 		drink.insert()
 
 		return jsonify({
 			'success': True,
-			'created': drink
+			'drinks': [drink.long()]
 		})
 
 	except:
@@ -117,14 +119,23 @@ def update_drinks(payload, drink_id):
 	new_title = body.get('title', None)
 	new_recipe = body.get('recipe', None)
 
+	if new_recipe is None:
+		abort(422)
+
+	recipe_json	= json.dumps(new_recipe)
+
 	try:
 		drink.title = new_title
-		drink.recipe = json.dumps(new_recipe)
+		drink.recipe = recipe_json
 		drink.update()
+		# {
+		# 	"title": new_title,
+		# 	"recipe": recipe_json
+		# }
 
 		return jsonify({
 			'success': True,
-			'created': drink
+			'drinks': [drink.long()]
 		})
 
 	except:
@@ -200,10 +211,10 @@ def not_found(error):
 @TODO implement error handler for AuthError
 	error handler should conform to general task above 
 '''
-@app.errorhandler(401)
-def unauthorized(error):
+@app.errorhandler(AuthError)
+def unauthorized(err):
 	return jsonify({
 		"success": False,
-		"error": 401,
-		"message": "permission not found"
+		"error": err.status_code,
+		"message": err.error
 		}), 401
