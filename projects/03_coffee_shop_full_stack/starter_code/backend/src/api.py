@@ -119,19 +119,19 @@ def update_drinks(payload, drink_id):
 	new_title = body.get('title', None)
 	new_recipe = body.get('recipe', None)
 
-	if new_recipe is None:
+	if new_title is None and new_recipe is None:
 		abort(422)
 
-	recipe_json	= json.dumps(new_recipe)
 
 	try:
-		drink.title = new_title
-		drink.recipe = recipe_json
+		if new_title is not None:
+			drink.title = new_title
+		
+		if new_recipe is not None:
+			recipe_json	= json.dumps(new_recipe)
+			drink.recipe = recipe_json
+
 		drink.update()
-		# {
-		# 	"title": new_title,
-		# 	"recipe": recipe_json
-		# }
 
 		return jsonify({
 			'success': True,

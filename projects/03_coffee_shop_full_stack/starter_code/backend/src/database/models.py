@@ -29,6 +29,11 @@ def db_drop_and_create_all():
     db.drop_all()
     db.create_all()
 
+    json_recipe = json.dumps([{'name':'milk', 'color':'#fdfdfd', 'parts': 3},{'name':'coffee', 'color':'brown', 'parts': 1}])
+    drink = Drink(title="Latte", recipe=json_recipe)
+    db.session.add(drink)
+    db.session.commit()
+
 '''
 Drink
 a persistent drink entity, extends the base SQLAlchemy Model
